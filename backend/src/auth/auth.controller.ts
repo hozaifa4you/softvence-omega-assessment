@@ -10,7 +10,7 @@ import { AuthService } from './auth.service';
 import { AuthUser } from './decorators/auth-user.decorator';
 import { LocalGuard } from './guards/local.guard';
 import { SignupDTO } from './dtos/signup.dto';
-import { type AuthUserType } from 'src/types/auth';
+import { type AuthUserType } from '../types/auth';
 
 @Controller('auth')
 export class AuthController {

@@ -1,10 +1,10 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { eq } from 'drizzle-orm';
-import { SignupDTO } from 'src/auth/dtos/signup.dto';
-import { DB } from 'src/db/db.module';
-import { Role, users } from 'src/db/schemas';
-import { type Database } from 'src/db/types/db';
+import { SignupDTO } from '../auth/dtos/signup.dto';
+import { DB } from '../db/db.module';
+import { Role, users } from '../db/schemas';
+import { type Database } from '../db/types/db';
 
 @Injectable()
 export class UserService {

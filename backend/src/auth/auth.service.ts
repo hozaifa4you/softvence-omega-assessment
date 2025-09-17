@@ -5,10 +5,10 @@ import {
 } from '@nestjs/common';
 import * as argon from 'argon2';
 import { JwtService } from '@nestjs/jwt';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 import { SignupDTO } from './dtos/signup.dto';
-import { AuthUserType, RoleEnum } from 'src/types/auth';
-import { JwtPayload } from 'src/types/jwt-payload';
+import { AuthUserType, RoleEnum } from '../types/auth';
+import { JwtPayload } from '../types/jwt-payload';
 
 @Injectable()
 export class AuthService {
