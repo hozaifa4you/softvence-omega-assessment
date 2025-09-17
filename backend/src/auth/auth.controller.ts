@@ -7,10 +7,10 @@ import {
    UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignupDTO } from '@/auth/dtos/signup.dto';
 import { AuthUser } from './decorators/auth-user.decorator';
 import { LocalGuard } from './guards/local.guard';
-import { type AuthUserType } from '@/types/auth';
+import { SignupDTO } from './dtos/signup.dto';
+import { type AuthUserType } from 'src/types/auth';
 
 @Controller('auth')
 export class AuthController {

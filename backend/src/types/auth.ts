@@ -1,4 +1,4 @@
-import { Role, Status } from '@/db/schemas';
+import { Role, Status } from 'src/db/schemas';
 
 export type AuthUserType = {
    id: number;
