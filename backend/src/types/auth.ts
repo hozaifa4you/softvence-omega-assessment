@@ -1,7 +1,7 @@
 import { Role, Status } from '@/db/schemas';
 
 export type AuthUserType = {
-   id: string;
+   id: number;
    name: string;
    email: string;
    role: Role;
