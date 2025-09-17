@@ -29,7 +29,12 @@ export const users = pgTable(
          .defaultNow()
          .$onUpdate(() => new Date()),
    },
-   (table) => [index('idIndex').on(table.id)],
+   (table) => [
+      index('users_email_idx').on(table.email),
+      index('users_role_idx').on(table.role),
+      index('users_status_idx').on(table.status),
+      index('users_created_at_idx').on(table.created_at),
+   ],
 );
 
 export type User = typeof users.$inferSelect;
