@@ -3,8 +3,10 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { SignupDTO } from './dtos/signup.dto';
 import { AuthUserType, RoleEnum, StatusEnum } from '../types/auth';
+import { Role, Status } from '../db/schemas';
 import { ExecutionContext } from '@nestjs/common';
 import { LocalGuard } from './guards/local.guard';
+import { Request } from 'express';
 
 describe('AuthController', () => {
    let controller: AuthController;
@@ -14,13 +16,15 @@ describe('AuthController', () => {
       id: 1,
       name: 'John Doe',
       email: 'john@example.com',
-      role: RoleEnum.customer as any,
-      status: StatusEnum.active as any,
+      role: RoleEnum.customer as Role,
+      status: StatusEnum.active as Status,
    };
 
    const mockLocalGuard = {
       canActivate: jest.fn().mockImplementation((context: ExecutionContext) => {
-         const req = context.switchToHttp().getRequest();
+         const req = context
+            .switchToHttp()
+            .getRequest<Request & { user: AuthUserType }>();
          req.user = mockAuthUser;
          return true;
       }),
@@ -65,11 +69,11 @@ describe('AuthController', () => {
          };
 
          const expectedResult = { success: true };
-         authService.signup.mockResolvedValue(expectedResult);
+         authService['signup'].mockResolvedValue(expectedResult);
 
-         const result = await controller.signup(signupDto);
+         const result = await controller['signup'](signupDto);
 
-         expect(authService.signup).toHaveBeenCalledWith(signupDto);
+         expect(authService['signup']).toHaveBeenCalledWith(signupDto);
          expect(result).toEqual(expectedResult);
       });
 
@@ -81,12 +85,12 @@ describe('AuthController', () => {
          };
 
          const error = new Error('Signup failed');
-         authService.signup.mockRejectedValue(error);
+         authService['signup'].mockRejectedValue(error);
 
-         await expect(controller.signup(signupDto)).rejects.toThrow(
+         await expect(controller['signup'](signupDto)).rejects.toThrow(
             'Signup failed',
          );
-         expect(authService.signup).toHaveBeenCalledWith(signupDto);
+         expect(authService['signup']).toHaveBeenCalledWith(signupDto);
       });
 
       it('should validate SignupDTO properties', async () => {
@@ -96,12 +100,12 @@ describe('AuthController', () => {
             password: 'password123',
          };
 
-         authService.signup.mockResolvedValue({ success: true });
+         authService['signup'].mockResolvedValue({ success: true });
 
-         await controller.signup(signupDto);
+         await controller['signup'](signupDto);
 
          // Verify that all required properties are passed
-         expect(authService.signup).toHaveBeenCalledWith(
+         expect(authService['signup']).toHaveBeenCalledWith(
             expect.objectContaining({
                name: signupDto.name,
                email: signupDto.email,
@@ -118,22 +122,22 @@ describe('AuthController', () => {
             access_token: 'jwt.token.here',
          };
 
-         authService.signin.mockResolvedValue(expectedResult);
+         authService['signin'].mockResolvedValue(expectedResult);
 
-         const result = await controller.signin(mockAuthUser);
+         const result = await controller['signin'](mockAuthUser);
 
-         expect(authService.signin).toHaveBeenCalledWith(mockAuthUser);
+         expect(authService['signin']).toHaveBeenCalledWith(mockAuthUser);
          expect(result).toEqual(expectedResult);
       });
 
       it('should handle signin errors', async () => {
          const error = new Error('Signin failed');
-         authService.signin.mockRejectedValue(error);
+         authService['signin'].mockRejectedValue(error);
 
-         await expect(controller.signin(mockAuthUser)).rejects.toThrow(
+         await expect(controller['signin'](mockAuthUser)).rejects.toThrow(
             'Signin failed',
          );
-         expect(authService.signin).toHaveBeenCalledWith(mockAuthUser);
+         expect(authService['signin']).toHaveBeenCalledWith(mockAuthUser);
       });
 
       it('should receive user from LocalGuard', async () => {
@@ -142,30 +146,30 @@ describe('AuthController', () => {
             access_token: 'jwt.token.here',
          };
 
-         authService.signin.mockResolvedValue(expectedResult);
+         authService['signin'].mockResolvedValue(expectedResult);
 
-         const result = await controller.signin(mockAuthUser);
+         const result = await controller['signin'](mockAuthUser);
 
          expect(result.user).toEqual(mockAuthUser);
-         expect(authService.signin).toHaveBeenCalledWith(mockAuthUser);
+         expect(authService['signin']).toHaveBeenCalledWith(mockAuthUser);
       });
    });
 
    describe('forgotPassword', () => {
       it('should call forgotPassword method', async () => {
-         authService.forgotPassword.mockResolvedValue(undefined);
+         authService['forgotPassword'].mockResolvedValue(undefined);
 
-         const result = await controller.forgotPassword();
+         const result = await controller['forgotPassword']();
 
-         expect(authService.forgotPassword).toHaveBeenCalled();
+         expect(authService['forgotPassword']).toHaveBeenCalled();
          expect(result).toBeUndefined();
       });
 
       it('should handle forgotPassword errors', async () => {
          const error = new Error('Forgot password failed');
-         authService.forgotPassword.mockRejectedValue(error);
+         authService['forgotPassword'].mockRejectedValue(error);
 
-         await expect(controller.forgotPassword()).rejects.toThrow(
+         await expect(controller['forgotPassword']()).rejects.toThrow(
             'Forgot password failed',
          );
       });
@@ -173,19 +177,19 @@ describe('AuthController', () => {
 
    describe('resetPassword', () => {
       it('should call resetPassword method', async () => {
-         authService.resetPassword.mockResolvedValue(undefined);
+         authService['resetPassword'].mockResolvedValue(undefined);
 
-         const result = await controller.resetPassword();
+         const result = await controller['resetPassword']();
 
-         expect(authService.resetPassword).toHaveBeenCalled();
+         expect(authService['resetPassword']).toHaveBeenCalled();
          expect(result).toBeUndefined();
       });
 
       it('should handle resetPassword errors', async () => {
          const error = new Error('Reset password failed');
-         authService.resetPassword.mockRejectedValue(error);
+         authService['resetPassword'].mockRejectedValue(error);
 
-         await expect(controller.resetPassword()).rejects.toThrow(
+         await expect(controller['resetPassword']()).rejects.toThrow(
             'Reset password failed',
          );
       });
@@ -193,19 +197,19 @@ describe('AuthController', () => {
 
    describe('signupWithGithub', () => {
       it('should call signupWithGithub method', async () => {
-         authService.signupWithGithub.mockResolvedValue(undefined);
+         authService['signupWithGithub'].mockResolvedValue(undefined);
 
-         const result = await controller.signupWithGithub();
+         const result = await controller['signupWithGithub']();
 
-         expect(authService.signupWithGithub).toHaveBeenCalled();
+         expect(authService['signupWithGithub']).toHaveBeenCalled();
          expect(result).toBeUndefined();
       });
 
       it('should handle signupWithGithub errors', async () => {
          const error = new Error('Github signup failed');
-         authService.signupWithGithub.mockRejectedValue(error);
+         authService['signupWithGithub'].mockRejectedValue(error);
 
-         await expect(controller.signupWithGithub()).rejects.toThrow(
+         await expect(controller['signupWithGithub']()).rejects.toThrow(
             'Github signup failed',
          );
       });
@@ -213,19 +217,19 @@ describe('AuthController', () => {
 
    describe('signupWithGoogle', () => {
       it('should call signupWithGoogle method', async () => {
-         authService.signupWithGoogle.mockResolvedValue(undefined);
+         authService['signupWithGoogle'].mockResolvedValue(undefined);
 
-         const result = await controller.signupWithGoogle();
+         const result = await controller['signupWithGoogle']();
 
-         expect(authService.signupWithGoogle).toHaveBeenCalled();
+         expect(authService['signupWithGoogle']).toHaveBeenCalled();
          expect(result).toBeUndefined();
       });
 
       it('should handle signupWithGoogle errors', async () => {
          const error = new Error('Google signup failed');
-         authService.signupWithGoogle.mockRejectedValue(error);
+         authService['signupWithGoogle'].mockRejectedValue(error);
 
-         await expect(controller.signupWithGoogle()).rejects.toThrow(
+         await expect(controller['signupWithGoogle']()).rejects.toThrow(
             'Google signup failed',
          );
       });
@@ -235,11 +239,11 @@ describe('AuthController', () => {
       it('should have correct decorators for signup endpoint', () => {
          // This tests that the endpoint is properly decorated
          // In a real test, you'd use supertest for integration testing
-         expect(controller.signup).toBeDefined();
+         expect(controller['signup']).toBeDefined();
       });
 
       it('should have correct decorators for signin endpoint', () => {
-         expect(controller.signin).toBeDefined();
+         expect(controller['signin']).toBeDefined();
       });
 
       it('should have LocalGuard applied to signin endpoint', () => {
@@ -258,12 +262,12 @@ describe('AuthController', () => {
       });
 
       it('should have all required endpoints', () => {
-         expect(controller.signup).toBeDefined();
-         expect(controller.signin).toBeDefined();
-         expect(controller.forgotPassword).toBeDefined();
-         expect(controller.resetPassword).toBeDefined();
-         expect(controller.signupWithGithub).toBeDefined();
-         expect(controller.signupWithGoogle).toBeDefined();
+         expect(controller['signup']).toBeDefined();
+         expect(controller['signin']).toBeDefined();
+         expect(controller['forgotPassword']).toBeDefined();
+         expect(controller['resetPassword']).toBeDefined();
+         expect(controller['signupWithGithub']).toBeDefined();
+         expect(controller['signupWithGoogle']).toBeDefined();
       });
    });
 });

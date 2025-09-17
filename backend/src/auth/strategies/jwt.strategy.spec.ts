@@ -4,6 +4,7 @@ import { AuthService } from '../auth.service';
 import { HttpException } from '@nestjs/common';
 import { JwtPayload } from '../../types/jwt-payload';
 import { AuthUserType, RoleEnum, StatusEnum } from '../../types/auth';
+import { Role, Status } from '../../db/schemas';
 import jwtConfig from '../../config/jwt.config';
 
 describe('JwtStrategy', () => {
@@ -14,8 +15,8 @@ describe('JwtStrategy', () => {
       id: 1,
       name: 'John Doe',
       email: 'john@example.com',
-      role: RoleEnum.customer as any,
-      status: StatusEnum.active as any,
+      role: RoleEnum.customer as Role,
+      status: StatusEnum.active as Status,
    };
 
    const mockJwtConfig = {
@@ -95,23 +96,27 @@ describe('JwtStrategy', () => {
    describe('validate', () => {
       it('should successfully validate JWT payload and return user', async () => {
          const payload: JwtPayload = { sub: 1 };
-         authService.validateJwtUser.mockResolvedValue(mockAuthUser);
+         authService['validateJwtUser'].mockResolvedValue(mockAuthUser);
 
          const result = await strategy.validate(payload);
 
-         expect(authService.validateJwtUser).toHaveBeenCalledWith(payload.sub);
+         expect(authService['validateJwtUser']).toHaveBeenCalledWith(
+            payload.sub,
+         );
          expect(result).toEqual(mockAuthUser);
       });
 
       it('should handle validation errors from AuthService', async () => {
          const payload: JwtPayload = { sub: 999 };
          const error = new Error('User not found');
-         authService.validateJwtUser.mockRejectedValue(error);
+         authService['validateJwtUser'].mockRejectedValue(error);
 
          await expect(strategy.validate(payload)).rejects.toThrow(
             'User not found',
          );
-         expect(authService.validateJwtUser).toHaveBeenCalledWith(payload.sub);
+         expect(authService['validateJwtUser']).toHaveBeenCalledWith(
+            payload.sub,
+         );
       });
 
       it('should validate different user IDs correctly', async () => {
@@ -125,22 +130,22 @@ describe('JwtStrategy', () => {
          }));
 
          for (let i = 0; i < payloads.length; i++) {
-            authService.validateJwtUser.mockResolvedValueOnce(users[i]);
+            authService['validateJwtUser'].mockResolvedValueOnce(users[i]);
             const result = await strategy.validate(payloads[i]);
             expect(result).toEqual(users[i]);
-            expect(authService.validateJwtUser).toHaveBeenCalledWith(
+            expect(authService['validateJwtUser']).toHaveBeenCalledWith(
                payloads[i].sub,
             );
          }
 
-         expect(authService.validateJwtUser).toHaveBeenCalledTimes(
+         expect(authService['validateJwtUser']).toHaveBeenCalledTimes(
             payloads.length,
          );
       });
 
       it('should handle null payload gracefully', async () => {
-         const payload = { sub: null as any };
-         authService.validateJwtUser.mockRejectedValue(
+         const payload = { sub: null as unknown as number };
+         authService['validateJwtUser'].mockRejectedValue(
             new Error('Invalid user ID'),
          );
 
@@ -150,8 +155,8 @@ describe('JwtStrategy', () => {
       });
 
       it('should handle undefined payload sub', async () => {
-         const payload = { sub: undefined as any };
-         authService.validateJwtUser.mockRejectedValue(
+         const payload = { sub: undefined as unknown as number };
+         authService['validateJwtUser'].mockRejectedValue(
             new Error('Invalid user ID'),
          );
 
@@ -183,18 +188,18 @@ describe('JwtStrategy', () => {
    describe('Integration with AuthService', () => {
       it('should call validateJwtUser with correct parameters', async () => {
          const payload: JwtPayload = { sub: 42 };
-         authService.validateJwtUser.mockResolvedValue(mockAuthUser);
+         authService['validateJwtUser'].mockResolvedValue(mockAuthUser);
 
          await strategy.validate(payload);
 
-         expect(authService.validateJwtUser).toHaveBeenCalledWith(42);
-         expect(authService.validateJwtUser).toHaveBeenCalledTimes(1);
+         expect(authService['validateJwtUser']).toHaveBeenCalledWith(42);
+         expect(authService['validateJwtUser']).toHaveBeenCalledTimes(1);
       });
 
       it('should propagate AuthService exceptions', async () => {
          const payload: JwtPayload = { sub: 1 };
          const customError = new HttpException('Custom auth error', 401);
-         authService.validateJwtUser.mockRejectedValue(customError);
+         authService['validateJwtUser'].mockRejectedValue(customError);
 
          await expect(strategy.validate(payload)).rejects.toThrow(customError);
       });

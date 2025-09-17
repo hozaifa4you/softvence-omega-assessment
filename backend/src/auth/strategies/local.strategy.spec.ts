@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LocalStrategy } from './local.strategy';
 import { AuthService } from '../auth.service';
 import { AuthUserType, RoleEnum, StatusEnum } from '../../types/auth';
+import { Role, Status } from '../../db/schemas';
 import { BadRequestException } from '@nestjs/common';
 
 describe('LocalStrategy', () => {
@@ -12,8 +13,8 @@ describe('LocalStrategy', () => {
       id: 1,
       name: 'John Doe',
       email: 'john@example.com',
-      role: RoleEnum.customer as any,
-      status: StatusEnum.active as any,
+      role: RoleEnum.customer as Role,
+      status: StatusEnum.active as Status,
    };
 
    beforeEach(async () => {
@@ -55,11 +56,14 @@ describe('LocalStrategy', () => {
          const email = 'john@example.com';
          const password = 'password123';
 
-         authService.validateUser.mockResolvedValue(mockAuthUser);
+         authService['validateUser'].mockResolvedValue(mockAuthUser);
 
          const result = await strategy.validate(email, password);
 
-         expect(authService.validateUser).toHaveBeenCalledWith(email, password);
+         expect(authService['validateUser']).toHaveBeenCalledWith(
+            email,
+            password,
+         );
          expect(result).toEqual(mockAuthUser);
       });
 
@@ -68,12 +72,15 @@ describe('LocalStrategy', () => {
          const password = 'wrongpassword';
 
          const error = new BadRequestException('Invalid credentials');
-         authService.validateUser.mockRejectedValue(error);
+         authService['validateUser'].mockRejectedValue(error);
 
          await expect(strategy.validate(email, password)).rejects.toThrow(
             error,
          );
-         expect(authService.validateUser).toHaveBeenCalledWith(email, password);
+         expect(authService['validateUser']).toHaveBeenCalledWith(
+            email,
+            password,
+         );
       });
 
       it('should validate different users correctly', async () => {
@@ -95,13 +102,13 @@ describe('LocalStrategy', () => {
                   ...mockAuthUser,
                   id: 3,
                   email: 'admin@example.com',
-                  role: RoleEnum.admin as any,
+                  role: RoleEnum.admin as Role,
                },
             },
          ];
 
          for (const testCase of testCases) {
-            authService.validateUser.mockResolvedValueOnce(testCase.user);
+            authService['validateUser'].mockResolvedValueOnce(testCase.user);
 
             const result = await strategy.validate(
                testCase.email,
@@ -109,13 +116,13 @@ describe('LocalStrategy', () => {
             );
 
             expect(result).toEqual(testCase.user);
-            expect(authService.validateUser).toHaveBeenCalledWith(
+            expect(authService['validateUser']).toHaveBeenCalledWith(
                testCase.email,
                testCase.password,
             );
          }
 
-         expect(authService.validateUser).toHaveBeenCalledTimes(
+         expect(authService['validateUser']).toHaveBeenCalledTimes(
             testCases.length,
          );
       });
@@ -125,12 +132,15 @@ describe('LocalStrategy', () => {
          const password = 'password123';
 
          const error = new BadRequestException('Invalid credentials');
-         authService.validateUser.mockRejectedValue(error);
+         authService['validateUser'].mockRejectedValue(error);
 
          await expect(strategy.validate(email, password)).rejects.toThrow(
             error,
          );
-         expect(authService.validateUser).toHaveBeenCalledWith(email, password);
+         expect(authService['validateUser']).toHaveBeenCalledWith(
+            email,
+            password,
+         );
       });
 
       it('should handle empty password', async () => {
@@ -138,49 +148,61 @@ describe('LocalStrategy', () => {
          const password = '';
 
          const error = new BadRequestException('Invalid credentials');
-         authService.validateUser.mockRejectedValue(error);
+         authService['validateUser'].mockRejectedValue(error);
 
          await expect(strategy.validate(email, password)).rejects.toThrow(
             error,
          );
-         expect(authService.validateUser).toHaveBeenCalledWith(email, password);
+         expect(authService['validateUser']).toHaveBeenCalledWith(
+            email,
+            password,
+         );
       });
 
       it('should handle null values gracefully', async () => {
-         const email = null as any;
-         const password = null as any;
+         const email = null as unknown as string;
+         const password = null as unknown as string;
 
          const error = new BadRequestException('Invalid credentials');
-         authService.validateUser.mockRejectedValue(error);
+         authService['validateUser'].mockRejectedValue(error);
 
          await expect(strategy.validate(email, password)).rejects.toThrow(
             error,
          );
-         expect(authService.validateUser).toHaveBeenCalledWith(email, password);
+         expect(authService['validateUser']).toHaveBeenCalledWith(
+            email,
+            password,
+         );
       });
 
       it('should handle undefined values gracefully', async () => {
-         const email = undefined as any;
-         const password = undefined as any;
+         const email = undefined as unknown as string;
+         const password = undefined as unknown as string;
 
          const error = new BadRequestException('Invalid credentials');
-         authService.validateUser.mockRejectedValue(error);
+         authService['validateUser'].mockRejectedValue(error);
 
          await expect(strategy.validate(email, password)).rejects.toThrow(
             error,
          );
-         expect(authService.validateUser).toHaveBeenCalledWith(email, password);
+         expect(authService['validateUser']).toHaveBeenCalledWith(
+            email,
+            password,
+         );
       });
 
       it('should handle special characters in email and password', async () => {
          const email = 'user+test@example.com';
          const password = 'p@ssw0rd!@#$%^&*()';
 
-         authService.validateUser.mockResolvedValue(mockAuthUser);
+         authService['validateUser'].mockResolvedValue(mockAuthUser);
 
          const result = await strategy.validate(email, password);
 
-         expect(authService.validateUser).toHaveBeenCalledWith(email, password);
+         expect(authService['validateUser']).toHaveBeenCalledWith(
+            email,
+            password,
+         );
          expect(result).toEqual(mockAuthUser);
       });
 
@@ -188,11 +210,14 @@ describe('LocalStrategy', () => {
          const email = 'John@Example.COM';
          const password = 'password123';
 
-         authService.validateUser.mockResolvedValue(mockAuthUser);
+         authService['validateUser'].mockResolvedValue(mockAuthUser);
 
          const result = await strategy.validate(email, password);
 
-         expect(authService.validateUser).toHaveBeenCalledWith(email, password);
+         expect(authService['validateUser']).toHaveBeenCalledWith(
+            email,
+            password,
+         );
          expect(result).toEqual(mockAuthUser);
       });
    });
@@ -202,12 +227,15 @@ describe('LocalStrategy', () => {
          const email = 'test@example.com';
          const password = 'testpassword';
 
-         authService.validateUser.mockResolvedValue(mockAuthUser);
+         authService['validateUser'].mockResolvedValue(mockAuthUser);
 
          await strategy.validate(email, password);
 
-         expect(authService.validateUser).toHaveBeenCalledWith(email, password);
-         expect(authService.validateUser).toHaveBeenCalledTimes(1);
+         expect(authService['validateUser']).toHaveBeenCalledWith(
+            email,
+            password,
+         );
+         expect(authService['validateUser']).toHaveBeenCalledTimes(1);
       });
 
       it('should propagate all AuthService exceptions', async () => {
@@ -215,7 +243,7 @@ describe('LocalStrategy', () => {
          const password = 'testpassword';
 
          const customError = new Error('Database connection failed');
-         authService.validateUser.mockRejectedValue(customError);
+         authService['validateUser'].mockRejectedValue(customError);
 
          await expect(strategy.validate(email, password)).rejects.toThrow(
             customError,
@@ -230,11 +258,11 @@ describe('LocalStrategy', () => {
             id: 999,
             name: 'Custom User',
             email: 'custom@example.com',
-            role: RoleEnum.admin as any,
-            status: StatusEnum.active as any,
+            role: RoleEnum.admin as Role,
+            status: StatusEnum.active as Status,
          };
 
-         authService.validateUser.mockResolvedValue(customUser);
+         authService['validateUser'].mockResolvedValue(customUser);
 
          const result = await strategy.validate(email, password);
 

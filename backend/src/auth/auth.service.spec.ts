@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { SignupDTO } from './dtos/signup.dto';
 import { RoleEnum, StatusEnum, AuthUserType } from '../types/auth';
+import { Role, Status } from '../db/schemas';
 import * as argon from 'argon2';
 
 // Mock argon2
@@ -21,8 +22,8 @@ describe('AuthService', () => {
       name: 'John Doe',
       email: 'john@example.com',
       password: 'hashedPassword123',
-      role: RoleEnum.customer as any,
-      status: StatusEnum.active as any,
+      role: RoleEnum.customer as Role,
+      status: StatusEnum.active as Status,
       created_at: new Date(),
       updated_at: new Date(),
    };
@@ -31,8 +32,8 @@ describe('AuthService', () => {
       id: 1,
       name: 'John Doe',
       email: 'john@example.com',
-      role: RoleEnum.customer as any,
-      status: StatusEnum.active as any,
+      role: RoleEnum.customer as Role,
+      status: StatusEnum.active as Status,
    };
 
    beforeEach(async () => {
@@ -76,11 +77,11 @@ describe('AuthService', () => {
             password: 'password123',
          };
 
-         userService.createUser.mockResolvedValue(mockUser);
+         userService['createUser'].mockResolvedValue(mockUser);
 
-         const result = await service.signup(signupDto);
+         const result = await service['signup'](signupDto);
 
-         expect(userService.createUser).toHaveBeenCalledWith(
+         expect(userService['createUser']).toHaveBeenCalledWith(
             signupDto,
             RoleEnum.customer,
          );
@@ -94,14 +95,14 @@ describe('AuthService', () => {
             password: 'password123',
          };
 
-         userService.createUser.mockRejectedValue(
+         userService['createUser'].mockRejectedValue(
             new BadRequestException('User already exist with the email'),
          );
 
-         await expect(service.signup(signupDto)).rejects.toThrow(
+         await expect(service['signup'](signupDto)).rejects.toThrow(
             BadRequestException,
          );
-         expect(userService.createUser).toHaveBeenCalledWith(
+         expect(userService['createUser']).toHaveBeenCalledWith(
             signupDto,
             RoleEnum.customer,
          );
@@ -111,11 +112,11 @@ describe('AuthService', () => {
    describe('signin', () => {
       it('should successfully sign in user and return tokens', async () => {
          const accessToken = 'jwt.token.here';
-         jwtService.signAsync.mockResolvedValue(accessToken);
+         jwtService['signAsync'].mockResolvedValue(accessToken);
 
-         const result = await service.signin(mockAuthUser);
+         const result = await service['signin'](mockAuthUser);
 
-         expect(jwtService.signAsync).toHaveBeenCalledWith({
+         expect(jwtService['signAsync']).toHaveBeenCalledWith({
             sub: mockAuthUser.id,
          });
          expect(result).toEqual({
@@ -125,11 +126,11 @@ describe('AuthService', () => {
       });
 
       it('should handle JWT signing failure', async () => {
-         jwtService.signAsync.mockRejectedValue(
+         jwtService['signAsync'].mockRejectedValue(
             new Error('JWT signing failed'),
          );
 
-         await expect(service.signin(mockAuthUser)).rejects.toThrow(
+         await expect(service['signin'](mockAuthUser)).rejects.toThrow(
             'JWT signing failed',
          );
       });
@@ -140,12 +141,12 @@ describe('AuthService', () => {
          const email = 'john@example.com';
          const password = 'password123';
 
-         userService.findUserByEmail.mockResolvedValue(mockUser);
+         userService['findUserByEmail'].mockResolvedValue(mockUser);
          mockedArgon.verify.mockResolvedValue(true);
 
-         const result = await service.validateUser(email, password);
+         const result = await service['validateUser'](email, password);
 
-         expect(userService.findUserByEmail).toHaveBeenCalledWith(email);
+         expect(userService['findUserByEmail']).toHaveBeenCalledWith(email);
          expect(mockedArgon.verify).toHaveBeenCalledWith(
             mockUser.password,
             password,
@@ -163,12 +164,12 @@ describe('AuthService', () => {
          const email = 'notfound@example.com';
          const password = 'password123';
 
-         userService.findUserByEmail.mockResolvedValue(null);
+         userService['findUserByEmail'].mockResolvedValue(undefined);
 
-         await expect(service.validateUser(email, password)).rejects.toThrow(
+         await expect(service['validateUser'](email, password)).rejects.toThrow(
             new BadRequestException('Invalid credentials'),
          );
-         expect(userService.findUserByEmail).toHaveBeenCalledWith(email);
+         expect(userService['findUserByEmail']).toHaveBeenCalledWith(email);
          expect(mockedArgon.verify).not.toHaveBeenCalled();
       });
 
@@ -176,13 +177,13 @@ describe('AuthService', () => {
          const email = 'john@example.com';
          const password = 'wrongpassword';
 
-         userService.findUserByEmail.mockResolvedValue(mockUser);
+         userService['findUserByEmail'].mockResolvedValue(mockUser);
          mockedArgon.verify.mockResolvedValue(false);
 
-         await expect(service.validateUser(email, password)).rejects.toThrow(
+         await expect(service['validateUser'](email, password)).rejects.toThrow(
             new BadRequestException('Invalid credentials'),
          );
-         expect(userService.findUserByEmail).toHaveBeenCalledWith(email);
+         expect(userService['findUserByEmail']).toHaveBeenCalledWith(email);
          expect(mockedArgon.verify).toHaveBeenCalledWith(
             mockUser.password,
             password,
@@ -193,10 +194,10 @@ describe('AuthService', () => {
          const email = 'john@example.com';
          const password = 'password123';
 
-         userService.findUserByEmail.mockResolvedValue(mockUser);
+         userService['findUserByEmail'].mockResolvedValue(mockUser);
          mockedArgon.verify.mockRejectedValue(new Error('Argon2 error'));
 
-         await expect(service.validateUser(email, password)).rejects.toThrow(
+         await expect(service['validateUser'](email, password)).rejects.toThrow(
             'Argon2 error',
          );
       });
@@ -205,11 +206,11 @@ describe('AuthService', () => {
    describe('validateJwtUser', () => {
       it('should successfully validate JWT user', async () => {
          const userId = 1;
-         userService.findUserById.mockResolvedValue(mockUser);
+         userService['findUserById'].mockResolvedValue(mockUser);
 
-         const result = await service.validateJwtUser(userId);
+         const result = await service['validateJwtUser'](userId);
 
-         expect(userService.findUserById).toHaveBeenCalledWith(userId);
+         expect(userService['findUserById']).toHaveBeenCalledWith(userId);
          expect(result).toEqual({
             id: mockUser.id,
             name: mockUser.name,
@@ -221,23 +222,23 @@ describe('AuthService', () => {
 
       it('should throw NotFoundException if user not found', async () => {
          const userId = 999;
-         userService.findUserById.mockResolvedValue(null);
+         userService['findUserById'].mockResolvedValue(undefined);
 
-         await expect(service.validateJwtUser(userId)).rejects.toThrow(
+         await expect(service['validateJwtUser'](userId)).rejects.toThrow(
             new NotFoundException('User not found'),
          );
-         expect(userService.findUserById).toHaveBeenCalledWith(userId);
+         expect(userService['findUserById']).toHaveBeenCalledWith(userId);
       });
    });
 
    describe('generateTokens (private method)', () => {
       it('should generate access token through signin method', async () => {
          const accessToken = 'jwt.token.here';
-         jwtService.signAsync.mockResolvedValue(accessToken);
+         jwtService['signAsync'].mockResolvedValue(accessToken);
 
-         const result = await service.signin(mockAuthUser);
+         const result = await service['signin'](mockAuthUser);
 
-         expect(jwtService.signAsync).toHaveBeenCalledWith({
+         expect(jwtService['signAsync']).toHaveBeenCalledWith({
             sub: mockAuthUser.id,
          });
          expect(result.access_token).toBe(accessToken);
@@ -246,23 +247,23 @@ describe('AuthService', () => {
 
    describe('placeholder methods', () => {
       it('should have forgotPassword method', () => {
-         expect(service.forgotPassword).toBeDefined();
-         expect(typeof service.forgotPassword).toBe('function');
+         expect(service['forgotPassword']).toBeDefined();
+         expect(typeof service['forgotPassword']).toBe('function');
       });
 
       it('should have resetPassword method', () => {
-         expect(service.resetPassword).toBeDefined();
-         expect(typeof service.resetPassword).toBe('function');
+         expect(service['resetPassword']).toBeDefined();
+         expect(typeof service['resetPassword']).toBe('function');
       });
 
       it('should have signupWithGithub method', () => {
-         expect(service.signupWithGithub).toBeDefined();
-         expect(typeof service.signupWithGithub).toBe('function');
+         expect(service['signupWithGithub']).toBeDefined();
+         expect(typeof service['signupWithGithub']).toBe('function');
       });
 
       it('should have signupWithGoogle method', () => {
-         expect(service.signupWithGoogle).toBeDefined();
-         expect(typeof service.signupWithGoogle).toBe('function');
+         expect(service['signupWithGoogle']).toBeDefined();
+         expect(typeof service['signupWithGoogle']).toBe('function');
       });
    });
 });

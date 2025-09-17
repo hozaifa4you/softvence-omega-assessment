@@ -3,6 +3,7 @@ import { RolesGuard } from './role.guard';
 import { Reflector } from '@nestjs/core';
 import { ExecutionContext } from '@nestjs/common';
 import { AuthUserType, RoleEnum, StatusEnum } from '../../types/auth';
+import { Role, Status } from '../../db/schemas';
 import { Request } from 'express';
 
 describe('RolesGuard', () => {
@@ -13,8 +14,8 @@ describe('RolesGuard', () => {
       id: 1,
       name: 'John Doe',
       email: 'john@example.com',
-      role: RoleEnum.customer as any,
-      status: StatusEnum.active as any,
+      role: RoleEnum.customer as Role,
+      status: StatusEnum.active as Status,
    };
 
    const createMockExecutionContext = (
@@ -24,13 +25,22 @@ describe('RolesGuard', () => {
          user,
       } as Request & { user: AuthUserType };
 
+      const mockHttpContext = {
+         getRequest: (): Request & { user: AuthUserType } => mockRequest,
+         getResponse: jest.fn(),
+         getNext: jest.fn(),
+      };
+
       return {
-         switchToHttp: () => ({
-            getRequest: () => mockRequest,
-         }),
+         switchToHttp: () => mockHttpContext,
          getHandler: jest.fn(),
          getClass: jest.fn(),
-      } as any;
+         getArgs: jest.fn(),
+         getArgByIndex: jest.fn(),
+         switchToRpc: jest.fn(),
+         switchToWs: jest.fn(),
+         getType: jest.fn(),
+      } as unknown as ExecutionContext;
    };
 
    beforeEach(async () => {
@@ -73,14 +83,15 @@ describe('RolesGuard', () => {
          const result = guard.canActivate(context);
 
          expect(result).toBe(true);
-         expect(reflector.getAllAndOverride).toHaveBeenCalledWith('roles', [
+         expect(reflector).toHaveProperty('getAllAndOverride');
+         expect(reflector['getAllAndOverride']).toHaveBeenCalledWith('roles', [
             context.getHandler(),
             context.getClass(),
          ]);
       });
 
       it('should allow access when user role matches required role', () => {
-         const user = { ...mockUser, role: RoleEnum.admin as any };
+         const user = { ...mockUser, role: RoleEnum.admin as Role };
          const context = createMockExecutionContext(user);
          reflector.getAllAndOverride.mockReturnValue([RoleEnum.admin]);
 
@@ -90,7 +101,7 @@ describe('RolesGuard', () => {
       });
 
       it('should allow access when user role is in required roles array', () => {
-         const user = { ...mockUser, role: RoleEnum.vendor as any };
+         const user = { ...mockUser, role: RoleEnum.vendor as Role };
          const context = createMockExecutionContext(user);
          reflector.getAllAndOverride.mockReturnValue([
             RoleEnum.admin,
@@ -103,7 +114,7 @@ describe('RolesGuard', () => {
       });
 
       it('should always allow super_admin access regardless of required roles', () => {
-         const user = { ...mockUser, role: RoleEnum.super_admin as any };
+         const user = { ...mockUser, role: RoleEnum.super_admin as Role };
          const context = createMockExecutionContext(user);
          reflector.getAllAndOverride.mockReturnValue([RoleEnum.admin]);
 
@@ -113,7 +124,7 @@ describe('RolesGuard', () => {
       });
 
       it('should deny access when user role does not match required roles', () => {
-         const user = { ...mockUser, role: RoleEnum.customer as any };
+         const user = { ...mockUser, role: RoleEnum.customer as Role };
          const context = createMockExecutionContext(user);
          reflector.getAllAndOverride.mockReturnValue([RoleEnum.admin]);
 
@@ -123,7 +134,7 @@ describe('RolesGuard', () => {
       });
 
       it('should deny access when user role is not in required roles array', () => {
-         const user = { ...mockUser, role: RoleEnum.customer as any };
+         const user = { ...mockUser, role: RoleEnum.customer as Role };
          const context = createMockExecutionContext(user);
          reflector.getAllAndOverride.mockReturnValue([
             RoleEnum.admin,
@@ -160,7 +171,7 @@ describe('RolesGuard', () => {
          ];
 
          testCases.forEach(({ userRole, requiredRoles, expected }) => {
-            const user = { ...mockUser, role: userRole as any };
+            const user = { ...mockUser, role: userRole as Role };
             const context = createMockExecutionContext(user);
             reflector.getAllAndOverride.mockReturnValue(requiredRoles);
 
@@ -171,7 +182,7 @@ describe('RolesGuard', () => {
       });
 
       it('should handle single required role', () => {
-         const user = { ...mockUser, role: RoleEnum.admin as any };
+         const user = { ...mockUser, role: RoleEnum.admin as Role };
          const context = createMockExecutionContext(user);
          reflector.getAllAndOverride.mockReturnValue([RoleEnum.admin]);
 
@@ -198,9 +209,10 @@ describe('RolesGuard', () => {
 
          reflector.getAllAndOverride.mockReturnValue([RoleEnum.admin]);
 
-         guard.canActivate(context);
+         void guard.canActivate(context);
 
-         expect(reflector.getAllAndOverride).toHaveBeenCalledWith('roles', [
+         expect(reflector).toHaveProperty('getAllAndOverride');
+         expect(reflector['getAllAndOverride']).toHaveBeenCalledWith('roles', [
             handler,
             cls,
          ]);
@@ -230,7 +242,7 @@ describe('RolesGuard', () => {
          const customUser = {
             ...mockUser,
             id: 99,
-            role: RoleEnum.admin as any,
+            role: RoleEnum.admin as Role,
          };
          const context = createMockExecutionContext(customUser);
          reflector.getAllAndOverride.mockReturnValue([RoleEnum.admin]);
@@ -242,10 +254,10 @@ describe('RolesGuard', () => {
 
       it('should work with different user objects', () => {
          const users = [
-            { ...mockUser, role: RoleEnum.admin as any },
-            { ...mockUser, role: RoleEnum.vendor as any },
-            { ...mockUser, role: RoleEnum.customer as any },
-            { ...mockUser, role: RoleEnum.super_admin as any },
+            { ...mockUser, role: RoleEnum.admin as Role },
+            { ...mockUser, role: RoleEnum.vendor as Role },
+            { ...mockUser, role: RoleEnum.customer as Role },
+            { ...mockUser, role: RoleEnum.super_admin as Role },
          ];
 
          users.forEach((user) => {

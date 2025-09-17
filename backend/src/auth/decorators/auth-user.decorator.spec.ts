@@ -1,5 +1,6 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { AuthUserType, RoleEnum, StatusEnum } from '../../types/auth';
+import { Role, Status } from '../../db/schemas';
 import { Request } from 'express';
 
 // We need to test the callback function that the decorator uses
@@ -16,8 +17,8 @@ describe('AuthUser Decorator', () => {
       id: 1,
       name: 'John Doe',
       email: 'john@example.com',
-      role: RoleEnum.customer as any,
-      status: StatusEnum.active as any,
+      role: RoleEnum.customer as Role,
+      status: StatusEnum.active as Status,
    };
 
    const createMockExecutionContext = (
@@ -29,9 +30,18 @@ describe('AuthUser Decorator', () => {
 
       return {
          switchToHttp: () => ({
-            getRequest: () => mockRequest,
+            getRequest: <T = any>(): T => mockRequest as T,
+            getResponse: jest.fn(),
+            getNext: jest.fn(),
          }),
-      } as any;
+         getHandler: jest.fn(),
+         getClass: jest.fn(),
+         getArgs: jest.fn(),
+         getArgByIndex: jest.fn(),
+         switchToRpc: jest.fn(),
+         switchToWs: jest.fn(),
+         getType: jest.fn(),
+      };
    };
 
    describe('decorator callback function', () => {
@@ -52,12 +62,9 @@ describe('AuthUser Decorator', () => {
       });
 
       it('should return null when user is null', () => {
-         const mockRequest = { user: null } as Request & { user: null };
-         const context = {
-            switchToHttp: () => ({
-               getRequest: () => mockRequest,
-            }),
-         } as any;
+         const context = createMockExecutionContext(
+            null as unknown as undefined,
+         );
 
          const result = authUserCallback(undefined, context);
 
@@ -66,9 +73,9 @@ describe('AuthUser Decorator', () => {
 
       it('should handle different user objects correctly', () => {
          const users = [
-            { ...mockUser, id: 1, role: RoleEnum.admin as any },
-            { ...mockUser, id: 2, role: RoleEnum.vendor as any },
-            { ...mockUser, id: 3, role: RoleEnum.super_admin as any },
+            { ...mockUser, id: 1, role: RoleEnum.admin as Role },
+            { ...mockUser, id: 2, role: RoleEnum.vendor as Role },
+            { ...mockUser, id: 3, role: RoleEnum.super_admin as Role },
          ];
 
          users.forEach((user) => {
@@ -83,8 +90,8 @@ describe('AuthUser Decorator', () => {
             id: 999,
             name: 'Jane Smith',
             email: 'jane.smith@example.com',
-            role: RoleEnum.admin as any,
-            status: StatusEnum.active as any,
+            role: RoleEnum.admin as Role,
+            status: StatusEnum.active as Status,
          };
 
          const context = createMockExecutionContext(detailedUser);
@@ -132,11 +139,20 @@ describe('AuthUser Decorator', () => {
       it('should correctly switch to HTTP context', () => {
          const mockSwitchToHttp = jest.fn().mockReturnValue({
             getRequest: () => ({ user: mockUser }),
+            getResponse: jest.fn(),
+            getNext: jest.fn(),
          });
 
-         const context = {
+         const context: ExecutionContext = {
             switchToHttp: mockSwitchToHttp,
-         } as any;
+            getHandler: jest.fn(),
+            getClass: jest.fn(),
+            getArgs: jest.fn(),
+            getArgByIndex: jest.fn(),
+            switchToRpc: jest.fn(),
+            switchToWs: jest.fn(),
+            getType: jest.fn(),
+         };
 
          authUserCallback(undefined, context);
 
@@ -145,11 +161,20 @@ describe('AuthUser Decorator', () => {
 
       it('should call getRequest on HTTP context', () => {
          const mockGetRequest = jest.fn().mockReturnValue({ user: mockUser });
-         const context = {
+         const context: ExecutionContext = {
             switchToHttp: () => ({
                getRequest: mockGetRequest,
+               getResponse: jest.fn(),
+               getNext: jest.fn(),
             }),
-         } as any;
+            getHandler: jest.fn(),
+            getClass: jest.fn(),
+            getArgs: jest.fn(),
+            getArgByIndex: jest.fn(),
+            switchToRpc: jest.fn(),
+            switchToWs: jest.fn(),
+            getType: jest.fn(),
+         };
 
          authUserCallback(undefined, context);
 
@@ -174,11 +199,20 @@ describe('AuthUser Decorator', () => {
 
       it('should handle request without user property gracefully', () => {
          const mockRequest = {} as Request;
-         const context = {
+         const context: ExecutionContext = {
             switchToHttp: () => ({
-               getRequest: () => mockRequest,
+               getRequest: <T = any>(): T => mockRequest as T,
+               getResponse: jest.fn(),
+               getNext: jest.fn(),
             }),
-         } as any;
+            getHandler: jest.fn(),
+            getClass: jest.fn(),
+            getArgs: jest.fn(),
+            getArgByIndex: jest.fn(),
+            switchToRpc: jest.fn(),
+            switchToWs: jest.fn(),
+            getType: jest.fn(),
+         };
 
          const result = authUserCallback(undefined, context);
 
@@ -192,8 +226,8 @@ describe('AuthUser Decorator', () => {
             id: 42,
             name: 'Authenticated User',
             email: 'auth@example.com',
-            role: RoleEnum.vendor as any,
-            status: StatusEnum.active as any,
+            role: RoleEnum.vendor as Role,
+            status: StatusEnum.active as Status,
          };
 
          const context = createMockExecutionContext(authenticatedUser);
@@ -212,7 +246,7 @@ describe('AuthUser Decorator', () => {
       it('should handle inactive user', () => {
          const inactiveUser = {
             ...mockUser,
-            status: StatusEnum.inactive as any,
+            status: StatusEnum.inactive as Status,
          };
 
          const context = createMockExecutionContext(inactiveUser);
@@ -225,7 +259,7 @@ describe('AuthUser Decorator', () => {
       it('should handle banned user', () => {
          const bannedUser = {
             ...mockUser,
-            status: StatusEnum.banned as any,
+            status: StatusEnum.banned as Status,
          };
 
          const context = createMockExecutionContext(bannedUser);

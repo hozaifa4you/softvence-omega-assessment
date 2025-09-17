@@ -102,7 +102,7 @@ describe('Roles Decorator', () => {
 
          Roles(role1, role2);
 
-         const [key, value] = mockSetMetadata.mock.calls[0];
+         const [key, value] = mockSetMetadata.mock.calls[0] as [string, Role[]];
          expect(key).toBe(ROLE_KEY);
          expect(Array.isArray(value)).toBe(true);
          expect(value).toEqual([role1, role2]);
@@ -186,7 +186,7 @@ describe('Roles Decorator', () => {
          const roles = [RoleEnum.admin, RoleEnum.vendor] as Role[];
          Roles(roles[0], roles[1]);
 
-         const [key, value] = mockSetMetadata.mock.calls[0];
+         const [key, value] = mockSetMetadata.mock.calls[0] as [string, Role[]];
 
          // Verify the metadata structure matches what RolesGuard expects
          expect(key).toBe('roles');
@@ -200,7 +200,7 @@ describe('Roles Decorator', () => {
          const role = RoleEnum.customer as Role;
          Roles(role);
 
-         const [, value] = mockSetMetadata.mock.calls[0];
+         const [, value] = mockSetMetadata.mock.calls[0] as [string, Role[]];
 
          // Even single role should be in array format
          expect(Array.isArray(value)).toBe(true);
