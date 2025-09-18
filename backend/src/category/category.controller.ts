@@ -3,7 +3,10 @@ import {
    Controller,
    HttpCode,
    HttpStatus,
+   Param,
+   ParseIntPipe,
    Post,
+   Put,
    UseGuards,
 } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guards/auth.guard';
@@ -24,5 +27,16 @@ export class CategoryController {
    @Roles(RoleEnum.admin)
    public async create(@Body() createCategoryDto: CreateCategoryDto) {
       return this.categoryService.create(createCategoryDto);
+   }
+
+   @Put(':id')
+   @HttpCode(HttpStatus.CREATED)
+   @UseGuards(RolesGuard)
+   @Roles(RoleEnum.admin)
+   public async update(
+      @Body() updateCategoryDto: CreateCategoryDto,
+      @Param('id', ParseIntPipe) id: number,
+   ) {
+      return this.categoryService.update(id, updateCategoryDto);
    }
 }
