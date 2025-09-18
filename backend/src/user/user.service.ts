@@ -1,6 +1,6 @@
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import { eq } from 'drizzle-orm';
+import { count, eq } from 'drizzle-orm';
 import { SignupDTO } from '../auth/dtos/signup.dto';
 import { DB } from '../db/db.module';
 import { Role, users } from '../db/schemas';
@@ -12,11 +12,31 @@ export class UserService {
    constructor(@Inject(DB) private readonly db: Database) {}
 
    public async findAll(pagination: PaginationDto) {
-      return this.db.query.users.findMany({
-         columns: {
-            password: false,
+      const [data, totalCount] = await Promise.all([
+         this.db.query.users.findMany({
+            columns: {
+               password: false,
+            },
+            limit: pagination.take,
+            offset: pagination.skip,
+         }),
+         this.db.select({ count: count() }).from(users),
+      ]);
+
+      const total = totalCount[0].count;
+      const totalPages = Math.ceil(total / pagination.pageSize!);
+
+      return {
+         data,
+         pagination: {
+            page: pagination.page,
+            pageSize: pagination.pageSize,
+            total,
+            totalPages,
+            hasNext: pagination.page! < totalPages,
+            hasPrev: pagination.page! > 1,
          },
-      });
+      };
    }
 
    public async createUser(createUserDto: SignupDTO, role: Role) {
