@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { ProductModule } from './product/product.module';
 import { SlugGeneratorModule } from './slug-generator/slug-generator.module';
 import { CategoryModule } from './category/category.module';
+import { OrderModule } from './order/order.module';
 import appConfig from './config/app.config';
 import jwtConfig from './config/jwt.config';
 
@@ -20,6 +21,7 @@ import jwtConfig from './config/jwt.config';
       ProductModule,
       SlugGeneratorModule,
       CategoryModule,
+      OrderModule,
    ],
    controllers: [AppController],
    providers: [AppService],

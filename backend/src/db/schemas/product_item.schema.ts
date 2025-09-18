@@ -21,3 +21,6 @@ export const product_items = pgTable(
       index('product_items_composite_idx').on(table.product_id, table.order_id),
    ],
 );
+
+export type ProductItem = typeof product_items.$inferSelect;
+export type NewProductItem = typeof product_items.$inferInsert;

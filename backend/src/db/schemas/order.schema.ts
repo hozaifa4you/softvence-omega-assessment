@@ -36,3 +36,7 @@ export const orders = pgTable(
       index('orders_amount_idx').on(table.amount),
    ],
 );
+
+export type Order = typeof orders.$inferSelect;
+export type NewOrder = typeof orders.$inferInsert;
+export type OrderStatus = (typeof order_status.enumValues)[number];
