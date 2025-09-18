@@ -6,11 +6,11 @@ import {
    Post,
    UseGuards,
 } from '@nestjs/common';
-import { JwtGuard } from 'src/auth/guards/auth.guard';
+import { JwtGuard } from '../auth/guards/auth.guard';
 import { ChatService } from './chat.service';
 import { ChatDto, CreateConvDto } from './dto/create-conv.dto';
-import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
-import type { AuthUserType } from 'src/types/auth';
+import { AuthUser } from '../auth/decorators/auth-user.decorator';
+import type { AuthUserType } from '../types/auth';
 
 @Controller('chats')
 @UseGuards(JwtGuard)

@@ -1,13 +1,24 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { ChatDto, CreateConvDto } from './dto/create-conv.dto';
-import type { Database } from 'src/db/types/db';
-import { DB } from 'src/db/db.module';
-import { conversations, messages } from 'src/db/schemas';
+import type { Database } from '../db/types/db';
+import { DB } from '../db/db.module';
+import { conversations, messages } from '../db/schemas';
 import { eq } from 'drizzle-orm';
+
+interface ChatGateway {
+   emitConversationCreated(conversation: unknown, participants: number[]): void;
+   emitNewMessage(convId: number, message: unknown, senderId: number): void;
+}
 
 @Injectable()
 export class ChatService {
+   private chatGateway: ChatGateway | null = null;
+
    constructor(@Inject(DB) private readonly db: Database) {}
+
+   setChatGateway(gateway: ChatGateway): void {
+      this.chatGateway = gateway;
+   }
 
    public async create(userId: number, createConvDto: CreateConvDto) {
       const returning = await this.db
@@ -15,7 +26,16 @@ export class ChatService {
          .values({ ...createConvDto, user1_id: userId })
          .returning();
 
-      return returning[0];
+      const conversation = returning[0];
+
+      if (this.chatGateway) {
+         this.chatGateway.emitConversationCreated(conversation, [
+            userId,
+            createConvDto.user2_id,
+         ]);
+      }
+
+      return conversation;
    }
 
    public async message(senderId: number, convId: number, chatDto: ChatDto) {
@@ -37,6 +57,12 @@ export class ChatService {
          })
          .returning();
 
-      return message[0];
+      const newMessage = message[0];
+
+      if (this.chatGateway) {
+         this.chatGateway.emitNewMessage(convId, newMessage, senderId);
+      }
+
+      return newMessage;
    }
 }

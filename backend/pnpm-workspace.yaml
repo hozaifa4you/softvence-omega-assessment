@@ -1,6 +1,0 @@
-ignoredBuiltDependencies:
-  - '@nestjs/core'
-
-onlyBuiltDependencies:
-  - argon2
-  - esbuild
