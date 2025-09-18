@@ -6,7 +6,6 @@ import { ConfigModule } from '@nestjs/config';
 import { DbModule } from './db/db.module';
 import { UserModule } from './user/user.module';
 import { ProductModule } from './product/product.module';
-import { VendorModule } from './vendor/vendor.module';
 import { SlugGeneratorModule } from './slug-generator/slug-generator.module';
 import appConfig from './config/app.config';
 import jwtConfig from './config/jwt.config';
@@ -18,7 +17,6 @@ import jwtConfig from './config/jwt.config';
       DbModule,
       UserModule,
       ProductModule,
-      VendorModule,
       SlugGeneratorModule,
    ],
    controllers: [AppController],

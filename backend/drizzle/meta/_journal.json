@@ -50,6 +50,34 @@
       "when": 1758170596154,
       "tag": "0006_add_cascade_users_to_vendor",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1758176967665,
+      "tag": "0007_wealthy_ben_grimm",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1758177648868,
+      "tag": "0008_classy_iron_patriot",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1758177684286,
+      "tag": "0009_remove_vendor_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1758177746838,
+      "tag": "0010_remove_vendor_table",
+      "breakpoints": true
     }
   ]
 }

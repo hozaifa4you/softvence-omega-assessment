@@ -9,7 +9,6 @@ import {
    index,
 } from 'drizzle-orm/pg-core';
 import { categories } from './category.schema';
-import { vendors } from './vendor.schema';
 import { users } from './user.schema';
 
 export const product_status = pgEnum('status', [
@@ -31,13 +30,9 @@ export const products = pgTable(
       sku: varchar({ length: 100 }).notNull().unique(),
       stock: integer().notNull().default(0),
       status: product_status().notNull().default('active'),
-      author_id: integer()
-         .notNull()
-         .unique()
-         .references(() => users.id),
       vendor_id: integer()
          .notNull()
-         .references(() => vendors.id, { onDelete: 'cascade' }),
+         .references(() => users.id, { onDelete: 'cascade' }),
       category_id: integer()
          .notNull()
          .references(() => categories.id),
@@ -52,7 +47,6 @@ export const products = pgTable(
       index('products_status_idx').on(table.status),
       index('products_vendor_id_idx').on(table.vendor_id),
       index('products_category_id_idx').on(table.category_id),
-      index('products_author_id_idx').on(table.author_id),
       index('products_created_at_idx').on(table.created_at),
       index('products_price_idx').on(table.price),
       index('products_stock_idx').on(table.stock),

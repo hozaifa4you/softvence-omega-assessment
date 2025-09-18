@@ -4,7 +4,7 @@ import { DB } from 'src/db/db.module';
 import type { Database } from 'src/db/types/db';
 import * as schema from '../db/schemas';
 
-type Table = 'vendors' | 'products' | 'categories';
+type Table = 'products' | 'categories';
 
 @Injectable()
 export class SlugGeneratorService {
@@ -65,7 +65,6 @@ export class SlugGeneratorService {
    ): Promise<boolean> {
       try {
          const tableMap = {
-            vendors: schema.vendors,
             products: schema.products,
             categories: schema.categories,
          };
@@ -77,13 +76,7 @@ export class SlugGeneratorService {
 
          let result: any[] = [];
 
-         if (tableName === 'vendors' && columnName === 'slug') {
-            result = await this.dataSource
-               .select()
-               .from(schema.vendors)
-               .where(eq(schema.vendors.slug, slug))
-               .limit(1);
-         } else if (tableName === 'products' && columnName === 'slug') {
+         if (tableName === 'products' && columnName === 'slug') {
             result = await this.dataSource
                .select()
                .from(schema.products)
