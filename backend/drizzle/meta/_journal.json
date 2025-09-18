@@ -1,0 +1,76 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1758121112292,
+      "tag": "0000_create_users_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1758135833241,
+      "tag": "0001_created_multiple_tables_at_a_time",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758161863274,
+      "tag": "0002_removed_address_to_vendor_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1758163704653,
+      "tag": "0003_add_description_on_vendor_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1758169996739,
+      "tag": "0004_omniscient_paper_doll",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1758170453133,
+      "tag": "0005_melted_marrow",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1758170596154,
+      "tag": "0006_add_cascade_users_to_vendor",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1758177746838,
+      "tag": "0007_remove_vendor_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1758196512718,
+      "tag": "0008_remove_product_images_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1758200395682,
+      "tag": "0009_remove_img_on_chat_table",
+      "breakpoints": true
+    }
+  ]
+}
