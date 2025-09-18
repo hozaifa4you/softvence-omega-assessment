@@ -15,8 +15,9 @@ import {
    products,
    type OrderStatus,
 } from 'src/db/schemas';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, count } from 'drizzle-orm';
 import type { AuthUserType } from 'src/types/auth';
+import { PaginationDto } from 'src/common/pipes/pagination.dto';
 
 @Injectable()
 export class OrderService {
@@ -99,10 +100,60 @@ export class OrderService {
       });
    }
 
-   public async findAll() {
-      return await this.db.query.orders.findMany({
-         orderBy: (orders, { desc }) => [desc(orders.created_at)],
-      });
+   public async findAll(pagination: PaginationDto) {
+      const [data, totalCount] = await Promise.all([
+         this.db.query.orders.findMany({
+            orderBy: (orders, { desc }) => [desc(orders.created_at)],
+            limit: pagination.take,
+            offset: pagination.skip,
+         }),
+         this.db.select({ count: count() }).from(orders),
+      ]);
+
+      // Get order items for each order
+      const ordersWithItems = await Promise.all(
+         data.map(async (order) => {
+            const items = await this.db
+               .select({
+                  id: product_items.id,
+                  qty: product_items.qty,
+                  total: product_items.total,
+                  product_id: product_items.product_id,
+                  order_id: product_items.order_id,
+                  product: {
+                     id: products.id,
+                     name: products.name,
+                     slug: products.slug,
+                     price: products.price,
+                     sku: products.sku,
+                     status: products.status,
+                  },
+               })
+               .from(product_items)
+               .leftJoin(products, eq(product_items.product_id, products.id))
+               .where(eq(product_items.order_id, order.id));
+
+            return {
+               ...order,
+               items,
+            };
+         }),
+      );
+
+      const total = totalCount[0].count;
+      const totalPages = Math.ceil(total / pagination.pageSize!);
+
+      return {
+         data: ordersWithItems,
+         pagination: {
+            page: pagination.page,
+            pageSize: pagination.pageSize,
+            total,
+            totalPages,
+            hasNext: pagination.page! < totalPages,
+            hasPrev: pagination.page! > 1,
+         },
+      };
    }
 
    public async findById(id: number, user: AuthUserType) {

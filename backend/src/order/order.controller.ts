@@ -20,6 +20,7 @@ import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
 import type { AuthUserType } from 'src/types/auth';
 import { type OrderStatus } from 'src/db/schemas';
 import { ParseStatusPipe } from './pipes/parse-status.pipe';
+import { PaginationDto } from 'src/common/pipes/pagination.dto';
 
 @Controller('orders')
 @UseGuards(JwtGuard)
@@ -39,8 +40,8 @@ export class OrderController {
    @Get()
    @UseGuards(RolesGuard)
    @Roles(RoleEnum.admin)
-   public async findAll() {
-      return this.orderService.findAll();
+   public async findAll(@Query() pagination: PaginationDto) {
+      return this.orderService.findAll(pagination);
    }
 
    @Get('customers/:customerId')
