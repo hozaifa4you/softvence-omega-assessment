@@ -22,7 +22,7 @@ export class ProductController {
    @Post()
    @HttpCode(HttpStatus.CREATED)
    @UseGuards(RolesGuard)
-   @Roles(RoleEnum.customer)
+   @Roles(RoleEnum.vendor)
    public async create(
       @Body() createProductDto: CreateProductDto,
       @AuthUser() user: AuthUserType,

@@ -7,6 +7,7 @@ import { DbModule } from './db/db.module';
 import { UserModule } from './user/user.module';
 import { ProductModule } from './product/product.module';
 import { SlugGeneratorModule } from './slug-generator/slug-generator.module';
+import { CategoryModule } from './category/category.module';
 import appConfig from './config/app.config';
 import jwtConfig from './config/jwt.config';
 
@@ -18,6 +19,7 @@ import jwtConfig from './config/jwt.config';
       UserModule,
       ProductModule,
       SlugGeneratorModule,
+      CategoryModule,
    ],
    controllers: [AppController],
    providers: [AppService],

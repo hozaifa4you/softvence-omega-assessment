@@ -9,7 +9,6 @@ export class CreateProductDto {
    sku: string;
    stock: number;
    status?: ProductStatus;
-   author_id: number;
    vendor_id: number;
    category_id: number;
 }
