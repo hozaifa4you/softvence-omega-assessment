@@ -1,5 +1,6 @@
 import {
    BadRequestException,
+   ForbiddenException,
    Inject,
    Injectable,
    NotFoundException,
@@ -15,6 +16,7 @@ import {
    type OrderStatus,
 } from 'src/db/schemas';
 import { eq, inArray } from 'drizzle-orm';
+import type { AuthUserType } from 'src/types/auth';
 
 @Injectable()
 export class OrderService {
@@ -103,16 +105,25 @@ export class OrderService {
       });
    }
 
-   public async findById(id: number) {
+   public async findById(id: number, user: AuthUserType) {
       const order = await this.db.query.orders.findFirst({
          where: eq(orders.id, id),
       });
-
       if (!order) {
          throw new BadRequestException('Order not found');
       }
 
-      // Get order items separately
+      if (user.role === 'vendor') {
+         const vendorIdSet = new Set(order.vendor_ids);
+         if (!vendorIdSet.has(user.id)) {
+            throw new ForbiddenException('Access Denied');
+         }
+      } else if (user.role === 'customer') {
+         if (user.id !== order.customer_id) {
+            throw new ForbiddenException('Access Denied');
+         }
+      }
+
       const items = await this.db.query.product_items.findMany({
          where: eq(product_items.order_id, id),
       });

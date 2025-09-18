@@ -21,6 +21,10 @@ export class AuthorGuard implements CanActivate {
          .getRequest<Request & { user: AuthUserType }>();
       const slug = request.params['slug'];
 
+      if (request.user.role === 'admin') {
+         return true;
+      }
+
       const product = await this.db.query.products.findFirst({
          where: eq(products.slug, slug),
       });

@@ -60,9 +60,12 @@ export class OrderController {
 
    @Get(':id')
    @UseGuards(RolesGuard)
-   @Roles(RoleEnum.admin, RoleEnum.customer)
-   public async findById(@Param('id', ParseIntPipe) id: number) {
-      return this.orderService.findById(id);
+   @Roles(RoleEnum.admin, RoleEnum.customer, RoleEnum.customer)
+   public async findById(
+      @Param('id', ParseIntPipe) id: number,
+      @AuthUser() user: AuthUserType,
+   ) {
+      return this.orderService.findById(id, user);
    }
 
    @Patch(':id/status')

@@ -34,6 +34,8 @@ export class ProductController {
 
    @Get()
    @HttpCode(HttpStatus.OK)
+   @UseGuards(RolesGuard)
+   @Roles(RoleEnum.admin)
    public async findAll() {
       return this.productService.findAll();
    }
@@ -54,8 +56,7 @@ export class ProductController {
 
    @Put(':slug')
    @HttpCode(HttpStatus.OK)
-   @UseGuards(JwtGuard, RolesGuard, AuthorGuard)
-   @Roles(RoleEnum.vendor)
+   @UseGuards(JwtGuard, AuthorGuard)
    public async update(
       @Body() updateProductDto: UpdateProductDto,
       @Param('slug') slug: string,
@@ -65,8 +66,7 @@ export class ProductController {
 
    @Delete(':slug')
    @HttpCode(HttpStatus.NO_CONTENT)
-   @UseGuards(JwtGuard, RolesGuard, AuthorGuard)
-   @Roles(RoleEnum.vendor)
+   @UseGuards(JwtGuard, AuthorGuard)
    public async delete(@Param('slug') slug: string) {
       return this.productService.delete(slug);
    }
