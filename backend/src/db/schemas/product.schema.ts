@@ -59,3 +59,7 @@ export const products = pgTable(
       index('products_name_idx').on(table.name),
    ],
 );
+
+export type Product = typeof products.$inferSelect;
+export type NewProduct = typeof products.$inferInsert;
+export type ProductStatus = (typeof product_status.enumValues)[number];
