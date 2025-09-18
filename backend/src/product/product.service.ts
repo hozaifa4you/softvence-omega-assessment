@@ -9,8 +9,9 @@ import { DB } from 'src/db/db.module';
 import type { Database } from 'src/db/types/db';
 import { SlugGeneratorService } from 'src/slug-generator/slug-generator.service';
 import { categories, products } from 'src/db/schemas';
-import { eq } from 'drizzle-orm';
+import { count, eq } from 'drizzle-orm';
 import { UpdateProductDto } from './dtos/update-product.dto';
+import { PaginationDto } from 'src/common/pipes/pagination.dto';
 
 @Injectable()
 export class ProductService {
@@ -19,9 +20,50 @@ export class ProductService {
       private readonly slugGeneratorService: SlugGeneratorService,
    ) {}
 
-   public async findAll() {
-      const allProducts = await this.db.query.products.findMany();
-      return allProducts;
+   public async findAll(pagination: PaginationDto) {
+      const [data, totalCount] = await Promise.all([
+         this.db
+            .select({
+               id: products.id,
+               name: products.name,
+               slug: products.slug,
+               description: products.description,
+               price: products.price,
+               offerPrice: products.offerPrice,
+               discount: products.discount,
+               sku: products.sku,
+               stock: products.stock,
+               status: products.status,
+               vendor_id: products.vendor_id,
+               category_id: products.category_id,
+               created_at: products.created_at,
+               category: {
+                  id: categories.id,
+                  name: categories.name,
+                  slug: categories.slug,
+               },
+            })
+            .from(products)
+            .leftJoin(categories, eq(products.category_id, categories.id))
+            .limit(pagination.take)
+            .offset(pagination.skip),
+         this.db.select({ count: count() }).from(products),
+      ]);
+
+      const total = totalCount[0].count;
+      const totalPages = Math.ceil(total / pagination.pageSize!);
+
+      return {
+         data,
+         pagination: {
+            page: pagination.page,
+            pageSize: pagination.pageSize,
+            total,
+            totalPages,
+            hasNext: pagination.page! < totalPages,
+            hasPrev: pagination.page! > 1,
+         },
+      };
    }
 
    public async create(createProductDto: CreateProductDto) {

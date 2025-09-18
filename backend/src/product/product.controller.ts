@@ -9,6 +9,7 @@ import {
    ParseIntPipe,
    Post,
    Put,
+   Query,
    UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
@@ -19,6 +20,7 @@ import { RolesGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { AuthorGuard } from './guards/author.guard';
 import { UpdateProductDto } from './dtos/update-product.dto';
+import { PaginationDto } from 'src/common/pipes/pagination.dto';
 
 @Controller('products')
 export class ProductController {
@@ -34,8 +36,8 @@ export class ProductController {
 
    @Get()
    @HttpCode(HttpStatus.OK)
-   public async findAll() {
-      return this.productService.findAll();
+   public async findAll(@Query() pagination: PaginationDto) {
+      return this.productService.findAll(pagination);
    }
 
    @Get('vendors/:vendorId')
