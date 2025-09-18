@@ -72,4 +72,10 @@ export class VendorService {
 
       return updated[0];
    }
+
+   public async remove(id: number) {
+      await this.db.delete(vendors).where(eq(vendors.id, id));
+
+      return { success: true };
+   }
 }

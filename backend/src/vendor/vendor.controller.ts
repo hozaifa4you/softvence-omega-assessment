@@ -1,6 +1,7 @@
 import {
    Body,
    Controller,
+   Delete,
    Get,
    HttpCode,
    HttpStatus,
@@ -26,10 +27,10 @@ import { UpdateVendorDto } from './dtos/update-vendor.dto';
 export class VendorController {
    constructor(private readonly vendorService: VendorService) {}
 
-   @HttpCode(HttpStatus.CREATED)
-   @UseGuards(RolesGuard, ExistGuard)
-   @Roles(RoleEnum.customer)
    @Post()
+   @HttpCode(HttpStatus.CREATED)
+   @UseGuards(ExistGuard, RolesGuard)
+   @Roles(RoleEnum.customer)
    public async create(
       @AuthUser() user: AuthUserType,
       @Body() createVendorDto: CreateVendorDto,
@@ -51,5 +52,12 @@ export class VendorController {
       @Param('id', ParseIntPipe) id: number,
    ) {
       return this.vendorService.update(id, updateVendorDto);
+   }
+
+   @HttpCode(HttpStatus.NO_CONTENT)
+   @UseGuards(AuthorGuard)
+   @Delete(':id')
+   public async remove(@Param('id', ParseIntPipe) id: number) {
+      return this.vendorService.remove(id);
    }
 }
