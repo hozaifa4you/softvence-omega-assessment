@@ -19,6 +19,11 @@ export class ProductService {
       private readonly slugGeneratorService: SlugGeneratorService,
    ) {}
 
+   public async findAll() {
+      const allProducts = await this.db.query.products.findMany();
+      return allProducts;
+   }
+
    public async create(createProductDto: CreateProductDto) {
       const category = await this.db.query.categories.findFirst({
          where: eq(categories.id, createProductDto.category_id),

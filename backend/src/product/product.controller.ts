@@ -31,6 +31,12 @@ export class ProductController {
       return this.productService.create(createProductDto);
    }
 
+   @Get()
+   @HttpCode(HttpStatus.OK)
+   public async findAll() {
+      return this.productService.findAll();
+   }
+
    @Get(':slug')
    @HttpCode(HttpStatus.OK)
    public async findOne(@Param('slug') slug: string) {
