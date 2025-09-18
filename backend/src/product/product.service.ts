@@ -134,4 +134,12 @@ export class ProductService {
 
       return { message: 'Product deleted successfully' };
    }
+
+   public async findProductsByVendor(vendor_id: number) {
+      const productsByVendor = await this.db.query.products.findMany({
+         where: eq(products.vendor_id, vendor_id),
+      });
+
+      return productsByVendor;
+   }
 }

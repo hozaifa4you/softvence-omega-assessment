@@ -6,6 +6,7 @@ import {
    HttpCode,
    HttpStatus,
    Param,
+   ParseIntPipe,
    Post,
    Put,
    UseGuards,
@@ -35,6 +36,14 @@ export class ProductController {
    @HttpCode(HttpStatus.OK)
    public async findAll() {
       return this.productService.findAll();
+   }
+
+   @Get('vendors/:vendorId')
+   @HttpCode(HttpStatus.OK)
+   public async findProductByVendor(
+      @Param('vendorId', ParseIntPipe) vendorId: number,
+   ) {
+      return this.productService.findProductsByVendor(vendorId);
    }
 
    @Get(':slug')
