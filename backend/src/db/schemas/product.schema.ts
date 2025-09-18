@@ -37,7 +37,7 @@ export const products = pgTable(
          .references(() => users.id),
       vendor_id: integer()
          .notNull()
-         .references(() => vendors.id),
+         .references(() => vendors.id, { onDelete: 'cascade' }),
       category_id: integer()
          .notNull()
          .references(() => categories.id),

@@ -25,7 +25,7 @@ export const vendors = pgTable(
       author_id: integer()
          .notNull()
          .unique()
-         .references(() => users.id),
+         .references(() => users.id, { onDelete: 'cascade' }),
       created_at: timestamp().notNull().defaultNow(),
       updated_at: timestamp()
          .notNull()

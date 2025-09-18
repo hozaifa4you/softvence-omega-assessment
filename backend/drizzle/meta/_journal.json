@@ -36,6 +36,20 @@
       "when": 1758169996739,
       "tag": "0004_omniscient_paper_doll",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1758170453133,
+      "tag": "0005_melted_marrow",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1758170596154,
+      "tag": "0006_add_cascade_users_to_vendor",
+      "breakpoints": true
     }
   ]
 }

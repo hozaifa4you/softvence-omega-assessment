@@ -1,4 +1,9 @@
-import { Inject, Injectable, ForbiddenException } from '@nestjs/common';
+import {
+   Inject,
+   Injectable,
+   ForbiddenException,
+   NotFoundException,
+} from '@nestjs/common';
 import type { Database } from '../db/types/db';
 import { DB } from '../db/db.module';
 import { CreateVendorDto } from './dtos/create-vendor.dto';
@@ -33,6 +38,23 @@ export class VendorService {
          .returning();
 
       return returning[0];
+   }
+
+   public async findOne(id: number) {
+      const vendor = await this.db.query.vendors.findFirst({
+         where: eq(vendors.id, id),
+         with: {
+            user: {
+               columns: { id: true, name: true, email: true, status: true },
+            },
+         },
+      });
+
+      if (!vendor) {
+         throw new NotFoundException('Vendor not found');
+      }
+
+      return vendor;
    }
 
    public async update(id: number, updateVendorDto: UpdateVendorDto) {
