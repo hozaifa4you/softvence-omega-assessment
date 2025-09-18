@@ -18,10 +18,6 @@ export class CreateOrderItemDto {
 }
 
 export class CreateOrderDto {
-   @IsInt()
-   @IsPositive()
-   customer_id: number;
-
    @IsArray()
    @ValidateNested({ each: true })
    @Type(() => CreateOrderItemDto)

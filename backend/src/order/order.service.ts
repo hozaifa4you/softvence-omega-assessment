@@ -1,17 +1,28 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import {
+   BadRequestException,
+   Inject,
+   Injectable,
+   NotFoundException,
+} from '@nestjs/common';
 import { DB } from 'src/db/db.module';
 import type { Database } from 'src/db/types/db';
 import { CreateOrderDto } from './dtos/create-order.dto';
-import { orders, product_items, users, products } from 'src/db/schemas';
+import {
+   orders,
+   product_items,
+   users,
+   products,
+   type OrderStatus,
+} from 'src/db/schemas';
 import { eq, inArray } from 'drizzle-orm';
 
 @Injectable()
 export class OrderService {
    constructor(@Inject(DB) private readonly db: Database) {}
 
-   public async create(createOrderDto: CreateOrderDto) {
+   public async create(createOrderDto: CreateOrderDto, customerId: number) {
       const customer = await this.db.query.users.findFirst({
-         where: eq(users.id, createOrderDto.customer_id),
+         where: eq(users.id, customerId),
       });
       if (!customer) {
          throw new BadRequestException('Customer not found');
@@ -63,7 +74,7 @@ export class OrderService {
             .insert(orders)
             .values({
                amount: Math.round(totalOrderAmount * 100),
-               customer_id: createOrderDto.customer_id,
+               customer_id: customerId,
                vendor_ids: vendorIds,
                status: 'pending',
             })
@@ -117,5 +128,22 @@ export class OrderService {
          where: eq(orders.customer_id, customerId),
          orderBy: (orders, { desc }) => [desc(orders.created_at)],
       });
+   }
+
+   public async updateOrderStatus(id: number, status: OrderStatus) {
+      const order = await this.db.query.orders.findFirst({
+         where: eq(orders.id, id),
+      });
+      if (!order) {
+         throw new NotFoundException('Order not found');
+      }
+
+      const returning = await this.db
+         .update(orders)
+         .set({ status })
+         .where(eq(orders.id, id))
+         .returning();
+
+      return returning[0];
    }
 }
