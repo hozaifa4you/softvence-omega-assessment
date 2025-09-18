@@ -54,7 +54,8 @@ export class ProductController {
 
    @Put(':slug')
    @HttpCode(HttpStatus.OK)
-   @UseGuards(JwtGuard, AuthorGuard)
+   @UseGuards(JwtGuard, RolesGuard, AuthorGuard)
+   @Roles(RoleEnum.vendor)
    public async update(
       @Body() updateProductDto: UpdateProductDto,
       @Param('slug') slug: string,
@@ -64,7 +65,8 @@ export class ProductController {
 
    @Delete(':slug')
    @HttpCode(HttpStatus.NO_CONTENT)
-   @UseGuards(JwtGuard, AuthorGuard)
+   @UseGuards(JwtGuard, RolesGuard, AuthorGuard)
+   @Roles(RoleEnum.vendor)
    public async delete(@Param('slug') slug: string) {
       return this.productService.delete(slug);
    }
