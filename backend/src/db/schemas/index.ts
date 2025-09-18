@@ -4,8 +4,6 @@ export * from './category.schema';
 export * from './order.schema';
 export * from './product_item.schema';
 export * from './message.schema';
-export * from './message.schema';
-
 // export const vendorsRelations = relations(vendors, ({ one }) => ({
 //    user: one(users, {
 //       fields: [vendors.author_id],
