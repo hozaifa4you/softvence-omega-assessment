@@ -15,6 +15,20 @@
       "when": 1758135833241,
       "tag": "0001_created_multiple_tables_at_a_time",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758161863274,
+      "tag": "0002_removed_address_to_vendor_table",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1758163704653,
+      "tag": "0003_add_description_on_vendor_table",
+      "breakpoints": true
     }
   ]
 }

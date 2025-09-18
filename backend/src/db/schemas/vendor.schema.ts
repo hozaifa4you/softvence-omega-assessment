@@ -6,7 +6,6 @@ import {
    timestamp,
    index,
 } from 'drizzle-orm/pg-core';
-import { addresses } from './address.schema';
 import { users } from './user.schema';
 
 const vendor_status = pgEnum('status', ['active', 'closed', 'suspended']);
@@ -16,15 +15,13 @@ export const vendors = pgTable(
    {
       id: integer().primaryKey().generatedAlwaysAsIdentity(),
       name: varchar({ length: 64 }).notNull(),
-      slug: varchar({ length: 90 }).notNull().unique(),
+      slug: varchar({ length: 190 }).notNull().unique(),
       status: vendor_status().notNull().default('active'),
+      description: varchar({ length: 255 }),
       author_id: integer()
          .notNull()
          .unique()
          .references(() => users.id),
-      address_id: integer()
-         .unique()
-         .references(() => addresses.id),
       created_at: timestamp().notNull().defaultNow(),
       updated_at: timestamp()
          .notNull()
@@ -38,3 +35,7 @@ export const vendors = pgTable(
       index('vendors_name_idx').on(table.name),
    ],
 );
+
+export type Vendor = typeof vendors.$inferSelect;
+export type NewVendor = typeof vendors.$inferInsert;
+export type VendorStatus = (typeof vendor_status.enumValues)[number];
