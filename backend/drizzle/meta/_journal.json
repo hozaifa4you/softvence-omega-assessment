@@ -64,6 +64,13 @@
       "when": 1758196512718,
       "tag": "0008_remove_product_images_table",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1758200395682,
+      "tag": "0009_remove_img_on_chat_table",
+      "breakpoints": true
     }
   ]
 }

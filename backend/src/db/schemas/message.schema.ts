@@ -38,7 +38,6 @@ export const messages = pgTable(
          .references(() => users.id)
          .notNull(),
       message: text(),
-      image: text(),
       is_read: boolean().default(false),
       created_at: timestamp().defaultNow(),
    },
