@@ -17,14 +17,8 @@ export class OrderService {
          throw new BadRequestException('Customer not found');
       }
 
-      const vendorsList = await this.db.query.users.findMany({
-         where: inArray(users.id, createOrderDto.vendor_ids),
-      });
-      if (vendorsList.length !== createOrderDto.vendor_ids.length) {
-         throw new BadRequestException('One or more vendors not found');
-      }
-
       const productIds = createOrderDto.items.map((item) => item.product_id);
+
       const productsList = await this.db.query.products.findMany({
          where: inArray(products.id, productIds),
       });
@@ -32,18 +26,50 @@ export class OrderService {
          throw new BadRequestException('One or more products not found');
       }
 
+      const productPriceMap = new Map(
+         productsList.map((product) => [
+            product.id,
+            parseFloat(product.price || '0'),
+         ]),
+      );
+
+      const vendorIds = [
+         ...new Set(productsList.map((product) => product.vendor_id)),
+      ];
+
+      const vendorsList = await this.db.query.users.findMany({
+         where: inArray(users.id, vendorIds),
+      });
+
+      if (vendorsList.length !== vendorIds.length) {
+         throw new BadRequestException('One or more vendors not found');
+      }
+
+      let totalOrderAmount = 0;
+      const itemsWithTotals = createOrderDto.items.map((item) => {
+         const productPrice = productPriceMap.get(item.product_id) || 0;
+         const itemTotal = productPrice * item.qty;
+         totalOrderAmount += itemTotal;
+
+         return {
+            product_id: item.product_id,
+            qty: item.qty,
+            total: Math.round(itemTotal * 100),
+         };
+      });
+
       return await this.db.transaction(async (tx) => {
          const [newOrder] = await tx
             .insert(orders)
             .values({
-               amount: createOrderDto.amount,
+               amount: Math.round(totalOrderAmount * 100),
                customer_id: createOrderDto.customer_id,
-               vendor_ids: createOrderDto.vendor_ids,
+               vendor_ids: vendorIds,
                status: 'pending',
             })
             .returning();
 
-         const orderItems = createOrderDto.items.map((item) => ({
+         const orderItems = itemsWithTotals.map((item) => ({
             ...item,
             order_id: newOrder.id,
          }));
