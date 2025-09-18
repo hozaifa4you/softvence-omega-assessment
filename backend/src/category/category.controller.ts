@@ -2,6 +2,7 @@ import {
    Body,
    Controller,
    Delete,
+   Get,
    HttpCode,
    HttpStatus,
    Param,
@@ -30,15 +31,27 @@ export class CategoryController {
       return this.categoryService.create(createCategoryDto);
    }
 
-   @Put(':id')
+   @Get()
+   @HttpCode(HttpStatus.OK)
+   public async findAll() {
+      return this.categoryService.findAll();
+   }
+
+   @Get(':slug')
+   @HttpCode(HttpStatus.OK)
+   public async findOne(@Param('slug') slug: string) {
+      return this.categoryService.findOne(slug);
+   }
+
+   @Put(':slug')
    @HttpCode(HttpStatus.OK)
    @UseGuards(RolesGuard)
    @Roles(RoleEnum.admin)
    public async update(
       @Body() updateCategoryDto: CreateCategoryDto,
-      @Param('id', ParseIntPipe) id: number,
+      @Param('slug') slug: string,
    ) {
-      return this.categoryService.update(id, updateCategoryDto);
+      return this.categoryService.update(slug, updateCategoryDto);
    }
 
    @Delete(':id')

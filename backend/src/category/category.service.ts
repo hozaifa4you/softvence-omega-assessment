@@ -33,15 +33,29 @@ export class CategoryService {
       return returning[0];
    }
 
-   public async update(id: number, updateCategoryDto: CreateCategoryDto) {
+   public async findAll() {
+      return this.db.query.categories.findMany();
+   }
+
+   public async findOne(slug: string) {
       const category = await this.db.query.categories.findFirst({
-         where: eq(categories.id, id),
+         where: eq(categories.slug, slug),
+      });
+      if (!category) {
+         throw new NotFoundException('Category not found');
+      }
+      return category;
+   }
+
+   public async update(slug: string, updateCategoryDto: CreateCategoryDto) {
+      const category = await this.db.query.categories.findFirst({
+         where: eq(categories.slug, slug),
       });
       if (!category) {
          throw new NotFoundException('Category not found');
       }
 
-      const slug = await this.slugGeneratorService.generateUniqueSlug(
+      const NewSlug = await this.slugGeneratorService.generateUniqueSlug(
          updateCategoryDto.name,
          'categories',
          'slug',
@@ -49,7 +63,7 @@ export class CategoryService {
 
       const returning = await this.db
          .update(categories)
-         .set({ ...updateCategoryDto, slug })
+         .set({ ...updateCategoryDto, slug: NewSlug })
          .where(eq(categories.id, category.id))
          .returning();
 
