@@ -5,12 +5,21 @@ import { SignupDTO } from '../auth/dtos/signup.dto';
 import { DB } from '../db/db.module';
 import { Role, users } from '../db/schemas';
 import { type Database } from '../db/types/db';
+import { PaginationDto } from 'src/common/pipes/pagination.dto';
 
 @Injectable()
 export class UserService {
    constructor(@Inject(DB) private readonly db: Database) {}
 
-   async createUser(createUserDto: SignupDTO, role: Role) {
+   public async findAll(pagination: PaginationDto) {
+      return this.db.query.users.findMany({
+         columns: {
+            password: false,
+         },
+      });
+   }
+
+   public async createUser(createUserDto: SignupDTO, role: Role) {
       const existingUser = await this.findUserByEmail(createUserDto.email);
       if (existingUser) {
          throw new BadRequestException('User already exist with the email');
