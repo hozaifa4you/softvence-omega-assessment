@@ -17,3 +17,4 @@
 -  **Product Module** - Product CRUD operations with vendor support
 -  **Order Module** - Order processing and management
 -  **Chat Module** - Real-time messaging with WebSocket support
+-  **Agent Module** - AI-powered agent for enhanced user interaction
