@@ -2,6 +2,7 @@ import {
    Body,
    Controller,
    Delete,
+   Get,
    HttpCode,
    HttpStatus,
    Param,
@@ -19,21 +20,26 @@ import { AuthorGuard } from './guards/author.guard';
 import { UpdateProductDto } from './dtos/update-product.dto';
 
 @Controller('products')
-@UseGuards(JwtGuard)
 export class ProductController {
    constructor(private readonly productService: ProductService) {}
 
    @Post()
    @HttpCode(HttpStatus.CREATED)
-   @UseGuards(RolesGuard)
+   @UseGuards(JwtGuard, RolesGuard)
    @Roles(RoleEnum.vendor)
    public async create(@Body() createProductDto: CreateProductDto) {
       return this.productService.create(createProductDto);
    }
 
+   @Get(':slug')
+   @HttpCode(HttpStatus.OK)
+   public async findOne(@Param('slug') slug: string) {
+      return this.productService.findOne(slug);
+   }
+
    @Put(':slug')
    @HttpCode(HttpStatus.OK)
-   @UseGuards(AuthorGuard)
+   @UseGuards(JwtGuard, AuthorGuard)
    public async update(
       @Body() updateProductDto: UpdateProductDto,
       @Param('slug') slug: string,
@@ -43,7 +49,7 @@ export class ProductController {
 
    @Delete(':slug')
    @HttpCode(HttpStatus.NO_CONTENT)
-   @UseGuards(AuthorGuard)
+   @UseGuards(JwtGuard, AuthorGuard)
    public async delete(@Param('slug') slug: string) {
       return this.productService.delete(slug);
    }

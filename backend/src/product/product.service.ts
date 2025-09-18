@@ -106,6 +106,17 @@ export class ProductService {
       return returning[0];
    }
 
+   public async findOne(slug: string) {
+      const product = await this.db.query.products.findFirst({
+         where: eq(products.slug, slug),
+      });
+      if (!product) {
+         throw new NotFoundException('Product not found');
+      }
+
+      return product;
+   }
+
    public async delete(slug: string) {
       const product = await this.db.query.products.findFirst({
          where: eq(products.slug, slug),
