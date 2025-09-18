@@ -29,6 +29,13 @@
       "when": 1758163704653,
       "tag": "0003_add_description_on_vendor_table",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1758169996739,
+      "tag": "0004_omniscient_paper_doll",
+      "breakpoints": true
     }
   ]
 }

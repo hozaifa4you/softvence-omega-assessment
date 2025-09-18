@@ -4,6 +4,8 @@ import { DB } from '../db/db.module';
 import { CreateVendorDto } from './dtos/create-vendor.dto';
 import { vendors } from 'src/db/schemas';
 import { SlugGeneratorService } from 'src/slug-generator/slug-generator.service';
+import { UpdateVendorDto } from './dtos/update-vendor.dto';
+import { eq } from 'drizzle-orm';
 
 @Injectable()
 export class VendorService {
@@ -31,5 +33,21 @@ export class VendorService {
          .returning();
 
       return returning[0];
+   }
+
+   public async update(id: number, updateVendorDto: UpdateVendorDto) {
+      if (updateVendorDto.status === 'suspended') {
+         throw new ForbiddenException(
+            'Cannot update vendor to suspended status',
+         );
+      }
+
+      const updated = await this.db
+         .update(vendors)
+         .set(updateVendorDto)
+         .where(eq(vendors.id, id))
+         .returning();
+
+      return updated[0];
    }
 }

@@ -8,7 +8,11 @@ import {
 } from 'drizzle-orm/pg-core';
 import { users } from './user.schema';
 
-const vendor_status = pgEnum('status', ['active', 'closed', 'suspended']);
+const vendor_status = pgEnum('vendor_status', [
+   'active',
+   'closed',
+   'suspended',
+]);
 
 export const vendors = pgTable(
    'vendors',
