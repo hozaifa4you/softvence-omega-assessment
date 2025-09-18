@@ -1,0 +1,20 @@
+import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { JwtGuard } from 'src/auth/guards/auth.guard';
+import { ChatService } from './chat.service';
+import { CreateConvDto } from './dto/create-conv.dto';
+import { AuthUser } from 'src/auth/decorators/auth-user.decorator';
+import type { AuthUserType } from 'src/types/auth';
+
+@Controller('chats')
+@UseGuards(JwtGuard)
+export class ChatController {
+   constructor(private readonly chatService: ChatService) {}
+
+   @Post()
+   public async create(
+      @Body() createConvDto: CreateConvDto,
+      @AuthUser() user: AuthUserType,
+   ) {
+      return this.chatService.create(user.id, createConvDto);
+   }
+}
