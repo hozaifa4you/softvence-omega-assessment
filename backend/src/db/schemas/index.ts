@@ -1,7 +1,6 @@
 export * from './user.schema';
 export * from './product.schema';
 export * from './category.schema';
-export * from './product_image.schema';
 export * from './order.schema';
 export * from './product_item.schema';
 export * from './message.schema';
