@@ -34,8 +34,6 @@ export class ProductController {
 
    @Get()
    @HttpCode(HttpStatus.OK)
-   @UseGuards(RolesGuard)
-   @Roles(RoleEnum.admin)
    public async findAll() {
       return this.productService.findAll();
    }
