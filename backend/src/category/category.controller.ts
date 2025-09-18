@@ -1,6 +1,7 @@
 import {
    Body,
    Controller,
+   Delete,
    HttpCode,
    HttpStatus,
    Param,
@@ -30,7 +31,7 @@ export class CategoryController {
    }
 
    @Put(':id')
-   @HttpCode(HttpStatus.CREATED)
+   @HttpCode(HttpStatus.OK)
    @UseGuards(RolesGuard)
    @Roles(RoleEnum.admin)
    public async update(
@@ -38,5 +39,13 @@ export class CategoryController {
       @Param('id', ParseIntPipe) id: number,
    ) {
       return this.categoryService.update(id, updateCategoryDto);
+   }
+
+   @Delete(':id')
+   @HttpCode(HttpStatus.NO_CONTENT)
+   @UseGuards(RolesGuard)
+   @Roles(RoleEnum.admin)
+   public async remove(@Param('id', ParseIntPipe) id: number) {
+      return this.categoryService.remove(id);
    }
 }

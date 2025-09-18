@@ -1,9 +1,14 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+   BadRequestException,
+   Inject,
+   Injectable,
+   NotFoundException,
+} from '@nestjs/common';
 import { CreateCategoryDto } from './dtos/create-category.dto';
 import { DB } from 'src/db/db.module';
 import type { Database } from 'src/db/types/db';
 import { SlugGeneratorService } from 'src/slug-generator/slug-generator.service';
-import { categories } from 'src/db/schemas';
+import { categories, products } from 'src/db/schemas';
 import { eq } from 'drizzle-orm';
 
 @Injectable()
@@ -49,5 +54,26 @@ export class CategoryService {
          .returning();
 
       return returning[0];
+   }
+
+   public async remove(id: number) {
+      const category = await this.db.query.categories.findFirst({
+         where: eq(categories.id, id),
+      });
+      if (!category) {
+         throw new NotFoundException('Category not found');
+      }
+
+      const productsCollection = await this.db.query.products.findMany({
+         where: eq(products.category_id, id),
+      });
+      if (productsCollection.length > 0) {
+         throw new BadRequestException(
+            'Cannot delete category with associated products',
+         );
+      }
+
+      await this.db.delete(categories).where(eq(categories.id, category.id));
+      return { success: true };
    }
 }
