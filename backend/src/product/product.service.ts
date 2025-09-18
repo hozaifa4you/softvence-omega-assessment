@@ -105,4 +105,17 @@ export class ProductService {
 
       return returning[0];
    }
+
+   public async delete(slug: string) {
+      const product = await this.db.query.products.findFirst({
+         where: eq(products.slug, slug),
+      });
+      if (!product) {
+         throw new NotFoundException('Product not found');
+      }
+
+      await this.db.delete(products).where(eq(products.slug, slug));
+
+      return { message: 'Product deleted successfully' };
+   }
 }

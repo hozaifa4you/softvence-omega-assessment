@@ -1,6 +1,7 @@
 import {
    Body,
    Controller,
+   Delete,
    HttpCode,
    HttpStatus,
    Param,
@@ -38,5 +39,12 @@ export class ProductController {
       @Param('slug') slug: string,
    ) {
       return this.productService.update(slug, updateProductDto);
+   }
+
+   @Delete(':slug')
+   @HttpCode(HttpStatus.NO_CONTENT)
+   @UseGuards(AuthorGuard)
+   public async delete(@Param('slug') slug: string) {
+      return this.productService.delete(slug);
    }
 }
