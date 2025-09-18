@@ -61,7 +61,7 @@ export class OrderController {
 
    @Get(':id')
    @UseGuards(RolesGuard)
-   @Roles(RoleEnum.admin, RoleEnum.customer, RoleEnum.customer)
+   @Roles(RoleEnum.admin, RoleEnum.customer)
    public async findById(
       @Param('id', ParseIntPipe) id: number,
       @AuthUser() user: AuthUserType,
