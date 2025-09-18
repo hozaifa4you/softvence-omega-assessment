@@ -13,7 +13,11 @@ export const user_role = pgEnum('role', [
    'vendor',
    'customer',
 ]);
-export const user_status = pgEnum('status', ['active', 'inactive', 'banned']);
+export const user_status = pgEnum('user_status', [
+   'active',
+   'inactive',
+   'banned',
+]);
 
 export const users = pgTable(
    'users',

@@ -8,7 +8,11 @@ async function bootstrap() {
 
    app.setGlobalPrefix('api/v1');
    app.useGlobalPipes(
-      new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
+      new ValidationPipe({
+         whitelist: true,
+         forbidNonWhitelisted: true,
+         transform: true,
+      }),
    );
 
    await app.listen(process.env.PORT ?? 3000, () => {

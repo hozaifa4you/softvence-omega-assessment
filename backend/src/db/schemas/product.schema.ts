@@ -11,7 +11,7 @@ import {
 import { categories } from './category.schema';
 import { users } from './user.schema';
 
-export const product_status = pgEnum('status', [
+export const product_status = pgEnum('product_status', [
    'active',
    'inactive',
    'out_of_stock',
