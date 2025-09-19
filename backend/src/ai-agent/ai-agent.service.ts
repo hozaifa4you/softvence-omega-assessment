@@ -70,11 +70,11 @@ export class AiAgentService {
             const functionName = tool.function.name;
             const args = tool.function.arguments;
 
-            if (functionName === 'findAllTodosCountForAUser') {
-               const res = await this.aiAgentRepo.findAllTodosCountForAUser(
-                  JSON.parse(args),
-               );
-               result.push(`Total todos: ${res}`);
+            if (functionName === 'findAllOrdersForTheUser') {
+               // const res = await this.aiAgentRepo.findAllOrdersForAUser(
+               //    JSON.parse(args),
+               // );
+               result.push(`Total orders: ${'res'}`);
             }
 
             messages.push({
