@@ -2,6 +2,8 @@
 
 #### What are included
 
+Git repository includes: [Github Repo.](https://github.com/hozaifa4you/softvence-omega-assessment.git)
+
 -  Source code `/backend`
 -  API Documentation `/docs`
 -  Database Migration files `/backend/drizzle/*`
@@ -17,4 +19,4 @@
 -  **Product Module** - Product CRUD operations with vendor support
 -  **Order Module** - Order processing and management
 -  **Chat Module** - Real-time messaging with WebSocket support
--  **Agent Module** - AI-powered agent for enhanced user interaction
+-  **Agent Module** - AI-powered agent for enhanced user interaction (working)
